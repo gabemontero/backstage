@@ -1,0 +1,30 @@
+import{R as o}from"./index-CTjT7uj6.js";import{c as e}from"./plugin-xrmDW5w_.js";import{S as u}from"./Grid-BBk_6dks.js";import{C as p}from"./ComponentAccordion-PbKQBXDu.js";import{w as g}from"./appWrappers-C95badAO.js";import{T as i}from"./TemplateBackstageLogoIcon-0qBjLjMl.js";import{I as k}from"./InfoCard-BDSaDvlJ.js";import"./iframe-CuNir4og.js";import"../sb-preview/runtime.js";import"./Plugin-CuVBUtJY.js";import"./componentData-CM4hSmEF.js";import"./ApiRef-BSBwTmJJ.js";import"./useAnalytics-DTrkS1Gy.js";import"./ConfigApi-DBUUc3nU.js";import"./index-BkN7i-fW.js";import"./useRouteRef-ahYS9ypG.js";import"./interopRequireDefault-Y9pwbXtE.js";import"./createSvgIcon-gVLTJlNx.js";import"./capitalize-CuRwImtC.js";import"./defaultTheme-BnEhos6D.js";import"./withStyles-Bvq8MRoX.js";import"./hoist-non-react-statics.cjs-DzIEFHQI.js";import"./useControlled-CogIeAPD.js";import"./index-QA7F3UF1.js";import"./createSvgIcon-C2joj_qV.js";import"./isMuiElement-Cb6QZSLO.js";import"./unstable_useId-B3Hiq1YI.js";import"./IconButton-DZLTM8HP.js";import"./ButtonBase-DbbECwI4.js";import"./TransitionGroupContext-BtzQ-Cv7.js";import"./DialogTitle-CTRVyY9E.js";import"./Modal-BqI74ljr.js";import"./classCallCheck-BNzALLS0.js";import"./Portal-DHXjgkAG.js";import"./Backdrop-DqBUeUQS.js";import"./useTheme-BywMHAxl.js";import"./utils-5sYZftss.js";import"./Paper-DsuWrj9f.js";import"./Typography-DllAHQJn.js";import"./Button-BIQ-mITp.js";import"./WebStorage-D5Fgivzj.js";import"./index-CFaqwFgm.js";import"./MockTranslationApi-CzTtvR9F.js";import"./inherits-BVfVgrgP.js";import"./toArray-FnMkMKew.js";import"./TranslationApi-eOxINumg.js";import"./ExpandMore-DRsw0FpY.js";import"./makeStyles-BU0tkW44.js";import"./AccordionDetails-DuFjvSz5.js";import"./react-is.production.min-D0tnNtx9.js";import"./Collapse-CVdVLxjO.js";import"./useAsync-CXA3qup_.js";import"./useMountedState-DkESzBh4.js";import"./mapValues-r4uG88u0.js";import"./toString-C6iK1gA3.js";import"./ApiProvider-CuNQiN7Z.js";import"./index-BRV0Se7Z.js";import"./CssBaseline-Bw_LSqbM.js";import"./ThemeProvider-s1UPBsz6.js";import"./jsx-runtime-Cw0GR0a5.js";import"./palettes-B20oCNII.js";import"./index-Cqve-NHl.js";import"./CardActions-Dp1NLdNv.js";import"./CardContent-DuGDnaC5.js";import"./ErrorBoundary-CWw1Oczf.js";import"./translation-67MxozS3.js";import"./ErrorPanel-D4hDgQp2.js";import"./WarningPanel-DtCoasWz.js";import"./MarkdownContent-h599ex28.js";import"./CodeSnippet-B1_4fsF1.js";import"./objectWithoutProperties-C_MEUZXD.js";import"./toConsumableArray-BEwiObev.js";import"./Box-BlnZ3bMe.js";import"./typography-Bw32VBWA.js";import"./CopyTextButton-Boajxbq4.js";import"./useCopyToClipboard-jmfaK3ET.js";import"./Tooltip-DOf8SuPq.js";import"./Popper-DjaUCFiZ.js";import"./Grow-P-A83A7Q.js";import"./List-7_TU6u55.js";import"./ListContext-DydK1sOh.js";import"./ListItem-vLxI9vXl.js";import"./ListItemText-DILJ7l8C.js";import"./LinkButton-CNHI6k1L.js";import"./Link-DLrsDiHD.js";import"./lodash-CoGan1YB.js";import"./CardHeader-w8GSsbOu.js";import"./Divider-Miekqy1v.js";import"./BottomLink-B2rxUlQf.js";import"./ArrowForward-CorrRUEw.js";const or={title:"Plugins/Home/Components/Toolkit",decorators:[m=>g(o.createElement(m,null))]},r=()=>o.createElement(u,{item:!0,xs:12,md:6},o.createElement(e,{tools:Array(8).fill({url:"#",label:"link",icon:o.createElement(i,null)})})),t=()=>{const m=f=>o.createElement(p,{expanded:!0,...f});return o.createElement(k,{title:"Toolkit",noPadding:!0},o.createElement(u,{item:!0},o.createElement(e,{title:"Tools 1",tools:Array(8).fill({url:"#",label:"link",icon:o.createElement(i,null)}),Renderer:m}),o.createElement(e,{title:"Tools 2",tools:Array(8).fill({url:"#",label:"link",icon:o.createElement(i,null)}),Renderer:p}),o.createElement(e,{title:"Tools 3",tools:Array(8).fill({url:"#",label:"link",icon:o.createElement(i,null)}),Renderer:p})))};r.__docgenInfo={description:"",methods:[],displayName:"Default"};t.__docgenInfo={description:"",methods:[],displayName:"InAccordian"};var l,n,a;r.parameters={...r.parameters,docs:{...(l=r.parameters)==null?void 0:l.docs,source:{originalSource:`() => {
+  return <Grid item xs={12} md={6}>
+      <HomePageToolkit tools={Array(8).fill({
+      url: '#',
+      label: 'link',
+      icon: <TemplateBackstageLogoIcon />
+    })} />
+    </Grid>;
+}`,...(a=(n=r.parameters)==null?void 0:n.docs)==null?void 0:a.source}}};var c,s,d;t.parameters={...t.parameters,docs:{...(c=t.parameters)==null?void 0:c.docs,source:{originalSource:`() => {
+  const ExpandedComponentAccordion = (props: any) => <ComponentAccordion expanded {...props} />;
+  return <InfoCard title="Toolkit" noPadding>
+      <Grid item>
+        <HomePageToolkit title="Tools 1" tools={Array(8).fill({
+        url: '#',
+        label: 'link',
+        icon: <TemplateBackstageLogoIcon />
+      })} Renderer={ExpandedComponentAccordion} />
+        <HomePageToolkit title="Tools 2" tools={Array(8).fill({
+        url: '#',
+        label: 'link',
+        icon: <TemplateBackstageLogoIcon />
+      })} Renderer={ComponentAccordion} />
+        <HomePageToolkit title="Tools 3" tools={Array(8).fill({
+        url: '#',
+        label: 'link',
+        icon: <TemplateBackstageLogoIcon />
+      })} Renderer={ComponentAccordion} />
+      </Grid>
+    </InfoCard>;
+}`,...(d=(s=t.parameters)==null?void 0:s.docs)==null?void 0:d.source}}};const rr=["Default","InAccordian"];export{r as Default,t as InAccordian,rr as __namedExportsOrder,or as default};
