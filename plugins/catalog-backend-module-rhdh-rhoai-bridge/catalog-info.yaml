@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage-plugin-catalog-backend-module-rhdh-rhoai-bridge
+  title: '@backstage/plugin-catalog-backend-module-rhdh-rhoai-bridge'
+  description: The rhdh-rhoai-bridge backend module for the catalog plugin.
+spec:
+  lifecycle: experimental
+  type: backstage-backend-plugin-module
+  owner: gabemontero

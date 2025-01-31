@@ -15,7 +15,12 @@
  */
 
 import { createBackend } from '@backstage/backend-defaults';
-import { createBackendFeatureLoader } from '@backstage/backend-plugin-api';
+import {
+  createBackendFeatureLoader,
+  createBackendModule,
+} from '@backstage/backend-plugin-api';
+
+import { catalogLocationsExtensionPoint } from '@backstage/plugin-catalog-node/alpha';
 
 const backend = createBackend();
 
@@ -27,6 +32,22 @@ const searchLoader = createBackendFeatureLoader({
     yield import('@backstage/plugin-search-backend-module-catalog');
     yield import('@backstage/plugin-search-backend-module-explore');
     yield import('@backstage/plugin-search-backend-module-techdocs');
+  },
+});
+
+const catalogModuleRHDHRHOAILocationsExtensionPoint = createBackendModule({
+  pluginId: 'catalog',
+  moduleId: 'rhdh-rhoai-bridge-location-extension-point',
+  register(env) {
+    env.registerInit({
+      deps: {
+        catalog: catalogLocationsExtensionPoint,
+      },
+      async init({ catalog }) {
+        const allowedLocationTypes = ['file', 'url', 'rhdh-rhoai-bridge'];
+        catalog.setAllowedLocationTypes(allowedLocationTypes);
+      },
+    });
   },
 });
 
@@ -61,4 +82,8 @@ backend.add(import('@backstage/plugin-signals-backend'));
 backend.add(import('@backstage/plugin-notifications-backend'));
 backend.add(import('./instanceMetadata'));
 
+backend.add(
+  import('@backstage/plugin-catalog-backend-module-rhdh-rhoai-bridge'),
+);
+backend.add(catalogModuleRHDHRHOAILocationsExtensionPoint);
 backend.start();

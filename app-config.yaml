@@ -33,7 +33,7 @@ backend:
   # See https://backstage.io/docs/auth/service-to-service-auth for
   # information on the format
   # auth:
-  #   keys:
+  #   keys:http://bac-import-model-ggmtest.apps.rosa.ifznd-nq924-ny7.4nk8.p3.openshiftapps.com/catalog-info.yaml
   #     - secret: ${BACKEND_SECRET}
 
   auth:
@@ -59,6 +59,7 @@ backend:
     allow:
       - host: example.com
       - host: '*.mozilla.org'
+      - host: bac-import-model-ggmtest.apps.gmontero415.devcluster.openshift.com
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
 # See README.md in the proxy-backend plugin for information on the configuration format
@@ -324,6 +325,10 @@ catalog:
       target: ../../plugins/scaffolder-backend/sample-templates/all-templates.yaml
       rules:
         - allow: [Template]
+    # RHDH / RHOAI bridge plugin ... if we want to load something at startup, we can add an entry here, but we can also import after startup
+    #- type: rhdh-rhoai-bridge
+    #  target: http://bac-import-model-ggmtest.apps.rosa.ifznd-nq924-ny7.4nk8.p3.openshiftapps.com/catalog-info.yaml
+
 scaffolder:
   # Use to customize default commit author info used when new components are created
   # defaultAuthor:
