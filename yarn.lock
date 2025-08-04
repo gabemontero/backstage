@@ -6828,6 +6828,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@backstage/plugin-model-catalog-bridge-techdoc-urlreader-backend@workspace:plugins/model-catalog-bridge-techdoc-urlreader-backend"
   dependencies:
+    "@backstage/backend-common": "npm:^0.25.0"
     "@backstage/backend-defaults": "workspace:^"
     "@backstage/backend-plugin-api": "workspace:^"
     "@backstage/backend-test-utils": "workspace:^"
