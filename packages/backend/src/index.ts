@@ -63,4 +63,7 @@ backend.add(import('./instanceMetadata'));
 
 backend.add(import('@backstage/plugin-events-backend-module-google-pubsub'));
 backend.add(import('@backstage/plugin-mcp-actions-backend'));
+backend.add(
+  import('@backstage/plugin-model-catalog-bridge-techdoc-urlreader-backend'),
+);
 backend.start();

@@ -168,6 +168,9 @@ catalog:
       plugins:
         - catalog
         - search
+    modelCatalog:
+      development:
+        baseUrl: 'http://localhost:9090'
   locations:
     # Add a location here to ingest it, for example from a URL:
     #
