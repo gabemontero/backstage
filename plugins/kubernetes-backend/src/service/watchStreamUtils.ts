@@ -14,62 +14,52 @@
  * limitations under the License.
  */
 
-import { Readable } from 'node:stream';
 import split2 from 'split2';
 import { LoggerService } from '@backstage/backend-plugin-api';
 import { statusCodeToErrorType } from './KubernetesFetcher';
-import type { KubernetesFetchError } from '@backstage/plugin-kubernetes-common';
-
-export interface WatchEvent {
-  type: string;
-  object?: unknown;
-  resourceVersion?: string;
-}
-
-export type WatchStreamEvent = WatchEvent | KubernetesFetchError;
+import type { KubernetesWatchEvent } from '@backstage/plugin-kubernetes-common';
 
 export async function* processWatchStream(
-  stream: Readable,
+  stream: NodeJS.ReadableStream,
   resourcePath: string,
   logger: LoggerService,
-): AsyncGenerator<WatchStreamEvent> {
-  const pipeline = stream.pipe(split2(JSON.parse));
+): AsyncGenerator<KubernetesWatchEvent, void, undefined> {
+  const lineStream = stream.pipe(split2());
 
   try {
-    for await (const data of pipeline) {
-      // Skip empty lines
-      if (!data) {
-        continue;
+    for await (const line of lineStream) {
+      if (!line) continue; // Skip empty lines
+
+      let data;
+      try {
+        data = JSON.parse(line);
+      } catch (err) {
+        logger.warn(`Failed to parse watch event: ${err}`);
+        continue; // Skip malformed JSON
       }
 
-      // Handle malformed JSON - split2 will throw or return undefined/null
-      if (!data.type) {
-        logger.warn(
-          `Malformed watch event received for path "${resourcePath}": missing type field`,
-        );
-        continue;
-      }
-
-      // Transform ERROR events to error type
+      // Transform K8s watch event to our event type
       if (data.type === 'ERROR') {
-        const statusCode = data.object?.code;
         yield {
-          errorType: statusCodeToErrorType(statusCode || 0),
-          statusCode,
-          resourcePath,
-        } as KubernetesFetchError;
+          type: 'ERROR',
+          error: {
+            errorType: statusCodeToErrorType(data.object?.code || 500),
+            statusCode: data.object?.code || 500,
+            resourcePath,
+          },
+        };
       } else {
-        // Transform other events with type, object, and resourceVersion
-        const resourceVersion = data.object?.metadata?.resourceVersion;
         yield {
           type: data.type,
           object: data.object,
-          resourceVersion,
-        } as WatchEvent;
+          resourceVersion: data.object?.metadata?.resourceVersion,
+        };
       }
     }
   } finally {
-    // Clean up stream
-    pipeline.destroy();
+    // Cleanup stream
+    if (stream && 'destroy' in stream) {
+      (stream as any).destroy();
+    }
   }
 }

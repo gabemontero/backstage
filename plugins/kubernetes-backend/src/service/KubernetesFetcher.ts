@@ -61,7 +61,9 @@ function fetchResultsToResponseWrapper(
   } as FetchResponseWrapper; // TODO would be nice to get rid of this 'as'
 }
 
-const statusCodeToErrorType = (statusCode: number): KubernetesErrorTypes => {
+export const statusCodeToErrorType = (
+  statusCode: number,
+): KubernetesErrorTypes => {
   switch (statusCode) {
     case 400:
       return 'BAD_REQUEST';
