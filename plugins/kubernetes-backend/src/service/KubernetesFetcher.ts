@@ -28,6 +28,8 @@ import {
   KubernetesErrorTypes,
   KubernetesFetchError,
   PodStatusFetchResponse,
+  KubernetesWatchEvent,
+  KubernetesWatchOptions,
 } from '@backstage/plugin-kubernetes-common';
 import fetch, { RequestInit, Response } from 'node-fetch';
 import * as https from 'node:https';
@@ -38,6 +40,7 @@ import {
   KubernetesCredential,
 } from '@backstage/plugin-kubernetes-node';
 import { LoggerService } from '@backstage/backend-plugin-api';
+import { processWatchStream } from './watchStreamUtils';
 
 export interface KubernetesClientBasedFetcherOptions {
   logger: LoggerService;
@@ -344,5 +347,107 @@ export class KubernetesClientBasedFetcher implements KubernetesFetcher {
     }
 
     return items;
+  }
+
+  async *watchResource(
+    clusterDetails: ClusterDetails,
+    credential: KubernetesCredential,
+    group: string,
+    apiVersion: string,
+    plural: string,
+    options?: KubernetesWatchOptions,
+  ): AsyncGenerator<KubernetesWatchEvent, void, undefined> {
+    // Build resource path using same logic as fetchResource
+    const encode = (s: string) => encodeURIComponent(s);
+    let resourcePath = group
+      ? `/apis/${encode(group)}/${encode(apiVersion)}`
+      : `/api/${encode(apiVersion)}`;
+    if (options?.namespace) {
+      resourcePath += `/namespaces/${encode(options.namespace)}`;
+    }
+    resourcePath += `/${encode(plural)}`;
+
+    // Set up authentication using existing methods
+    let url: URL;
+    let requestInit: RequestInit;
+    const authProvider =
+      clusterDetails.authMetadata[ANNOTATION_KUBERNETES_AUTH_PROVIDER];
+
+    if (this.isServiceAccountAuthentication(authProvider, clusterDetails)) {
+      [url, requestInit] = await this.fetchArgsInCluster(credential);
+    } else if (!this.isCredentialMissing(authProvider, credential)) {
+      [url, requestInit] = await this.fetchArgs(clusterDetails, credential);
+    } else {
+      throw new Error(
+        `no bearer token or client cert for cluster '${clusterDetails.name}' and not running in Kubernetes`,
+      );
+    }
+
+    // Construct watch URL
+    if (url.pathname === '/') {
+      url.pathname = resourcePath;
+    } else {
+      url.pathname += resourcePath;
+    }
+
+    // Add watch query parameters
+    const searchParams = new URLSearchParams();
+    searchParams.set('watch', 'true');
+    if (options?.labelSelector) {
+      searchParams.set('labelSelector', options.labelSelector);
+    }
+    if (options?.resourceVersion) {
+      searchParams.set('resourceVersion', options.resourceVersion);
+    }
+    if (options?.timeoutSeconds !== undefined) {
+      searchParams.set('timeoutSeconds', String(options.timeoutSeconds));
+    }
+    if (options?.allowWatchBookmarks) {
+      searchParams.set('allowWatchBookmarks', 'true');
+    }
+    url.search = searchParams.toString();
+
+    // Make fetch request with network error handling
+    let response: Response;
+    try {
+      response = await fetch(url, requestInit);
+    } catch (error) {
+      this.logger.error(
+        `Network error watching "${resourcePath}" from cluster "${clusterDetails.name}": ${error}`,
+      );
+      throw error;
+    }
+
+    // Handle HTTP errors
+    if (!response.ok) {
+      const fetchError = await this.handleUnsuccessfulResponse(
+        clusterDetails.name,
+        response,
+      );
+      yield {
+        type: 'ERROR',
+        error: fetchError,
+      };
+      return;
+    }
+
+    // Validate response.body exists
+    if (!response.body) {
+      this.logger.error(
+        `No response body when watching "${resourcePath}" from cluster "${clusterDetails.name}"`,
+      );
+      yield {
+        type: 'ERROR',
+        error: {
+          errorType: 'SYSTEM_ERROR',
+          statusCode: 500,
+          resourcePath,
+        },
+      };
+      return;
+    }
+
+    // Delegate to processWatchStream utility
+    yield* processWatchStream(response.body, resourcePath, this.logger);
   }
 }
