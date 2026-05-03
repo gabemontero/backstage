@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { ANNOTATION_KUBERNETES_AUTH_PROVIDER } from '@backstage/plugin-kubernetes-common';
+import {
+  ANNOTATION_KUBERNETES_AUTH_PROVIDER,
+  KubernetesWatchEvent,
+} from '@backstage/plugin-kubernetes-common';
 import { KubernetesClientBasedFetcher } from './KubernetesFetcher';
 import { ObjectToFetch } from '@backstage/plugin-kubernetes-node';
 import {
@@ -1417,6 +1420,69 @@ describe('KubernetesFetcher', () => {
         items,
       );
       expect(result).toBe(items);
+    });
+  });
+
+  describe('watchResource', () => {
+    const logger = mockServices.logger.mock();
+    let sut: KubernetesClientBasedFetcher;
+
+    beforeEach(() => {
+      sut = new KubernetesClientBasedFetcher({ logger });
+    });
+
+    it('should yield ADDED events for pod creation', async () => {
+      const mockPod = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: {
+          name: 'test-pod',
+          namespace: 'default',
+          resourceVersion: '12345',
+        },
+        spec: {
+          containers: [{ name: 'nginx', image: 'nginx:latest' }],
+        },
+      };
+
+      const watchData = JSON.stringify({
+        type: 'ADDED',
+        object: mockPod,
+      });
+
+      const clusterDetails = {
+        name: 'test-cluster',
+        url: 'http://localhost:9999',
+        authMetadata: {},
+      };
+
+      worker.use(
+        rest.get('http://localhost:9999/*', (req, res, ctx) => {
+          if (req.url.searchParams.get('watch') === 'true') {
+            return res(ctx.text(watchData));
+          }
+          return res(ctx.status(400));
+        }),
+      );
+
+      const events: KubernetesWatchEvent[] = [];
+      for await (const event of sut.watchResource!(
+        clusterDetails,
+        { type: 'bearer token', token: 'token' },
+        '',
+        'v1',
+        'pods',
+        { namespace: 'default' },
+      )) {
+        events.push(event);
+      }
+
+      expect(events).toHaveLength(1);
+      expect(events[0]).toEqual({
+        type: 'ADDED',
+        object: mockPod,
+        resourceVersion: '12345',
+      });
     });
   });
 });
