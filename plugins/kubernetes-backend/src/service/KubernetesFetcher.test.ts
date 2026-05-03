@@ -1484,5 +1484,202 @@ describe('KubernetesFetcher', () => {
         resourceVersion: '12345',
       });
     });
+
+    it('should yield ERROR event for HTTP 401 Unauthorized', async () => {
+      const clusterDetails = {
+        name: 'test-cluster',
+        url: 'http://localhost:9998',
+        authMetadata: {},
+      };
+
+      worker.use(
+        rest.get('http://localhost:9998/*', (_req, res, ctx) => {
+          return res(
+            ctx.status(401),
+            ctx.json({
+              kind: 'Status',
+              apiVersion: 'v1',
+              code: 401,
+              message: 'Unauthorized',
+            }),
+          );
+        }),
+      );
+
+      const events: KubernetesWatchEvent[] = [];
+      for await (const event of sut.watchResource!(
+        clusterDetails,
+        { type: 'bearer token', token: 'invalid-token' },
+        '',
+        'v1',
+        'pods',
+        { namespace: 'default' },
+      )) {
+        events.push(event);
+      }
+
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe('ERROR');
+      const errorEvent = events[0] as Extract<
+        KubernetesWatchEvent,
+        { type: 'ERROR' }
+      >;
+      expect(errorEvent.error.errorType).toBe('UNAUTHORIZED_ERROR');
+      expect(errorEvent.error.statusCode).toBe(401);
+    });
+
+    it('should yield ERROR event for network failure', async () => {
+      const clusterDetails = {
+        name: 'test-cluster',
+        url: 'http://localhost:9997',
+        authMetadata: {},
+      };
+
+      worker.use(
+        rest.get('http://localhost:9997/*', (_req, _res, ctx) => {
+          return ctx.networkError('Network request failed');
+        }),
+      );
+
+      const events: KubernetesWatchEvent[] = [];
+      for await (const event of sut.watchResource!(
+        clusterDetails,
+        { type: 'bearer token', token: 'token' },
+        '',
+        'v1',
+        'pods',
+        { namespace: 'default' },
+      )) {
+        events.push(event);
+      }
+
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe('ERROR');
+      const errorEvent = events[0] as Extract<
+        KubernetesWatchEvent,
+        { type: 'ERROR' }
+      >;
+      expect(errorEvent.error.errorType).toBe('SYSTEM_ERROR');
+      expect(errorEvent.error.statusCode).toBe(0);
+    });
+
+    it('should pass labelSelector as query parameter', async () => {
+      const mockPod = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: {
+          name: 'test-pod',
+          namespace: 'default',
+          resourceVersion: '12345',
+          labels: {
+            app: 'test-app',
+          },
+        },
+        spec: {
+          containers: [{ name: 'nginx', image: 'nginx:latest' }],
+        },
+      };
+
+      const watchData = JSON.stringify({
+        type: 'ADDED',
+        object: mockPod,
+      });
+
+      const clusterDetails = {
+        name: 'test-cluster',
+        url: 'http://localhost:9996',
+        authMetadata: {},
+      };
+
+      let capturedLabelSelector: string | null = null;
+
+      worker.use(
+        rest.get('http://localhost:9996/*', (req, res, ctx) => {
+          if (req.url.searchParams.get('watch') === 'true') {
+            capturedLabelSelector = req.url.searchParams.get('labelSelector');
+            return res(ctx.text(`${watchData}\n`));
+          }
+          return res(ctx.status(400));
+        }),
+      );
+
+      const events: KubernetesWatchEvent[] = [];
+      for await (const event of sut.watchResource!(
+        clusterDetails,
+        { type: 'bearer token', token: 'token' },
+        '',
+        'v1',
+        'pods',
+        { namespace: 'default', labelSelector: 'app=test-app' },
+      )) {
+        events.push(event);
+      }
+
+      expect(events).toHaveLength(1);
+      expect(capturedLabelSelector).toBe('app=test-app');
+      expect(events[0]).toEqual({
+        type: 'ADDED',
+        object: mockPod,
+        resourceVersion: '12345',
+      });
+    });
+
+    it('should handle custom resources with API group', async () => {
+      const mockCustomResource = {
+        apiVersion: 'apps.example.com/v1',
+        kind: 'CustomResource',
+        metadata: {
+          name: 'test-custom-resource',
+          namespace: 'default',
+          resourceVersion: '54321',
+        },
+        spec: {
+          data: 'custom-data',
+        },
+      };
+
+      const watchData = JSON.stringify({
+        type: 'ADDED',
+        object: mockCustomResource,
+      });
+
+      const clusterDetails = {
+        name: 'test-cluster',
+        url: 'http://localhost:9995',
+        authMetadata: {},
+      };
+
+      let capturedPath: string | null = null;
+
+      worker.use(
+        rest.get('http://localhost:9995/*', (req, res, ctx) => {
+          if (req.url.searchParams.get('watch') === 'true') {
+            capturedPath = req.url.pathname;
+            return res(ctx.text(`${watchData}\n`));
+          }
+          return res(ctx.status(400));
+        }),
+      );
+
+      const events: KubernetesWatchEvent[] = [];
+      for await (const event of sut.watchResource!(
+        clusterDetails,
+        { type: 'bearer token', token: 'token' },
+        'apps.example.com',
+        'v1',
+        'customresources',
+        { namespace: 'default' },
+      )) {
+        events.push(event);
+      }
+
+      expect(events).toHaveLength(1);
+      expect(capturedPath).toContain('/apis/apps.example.com/v1');
+      expect(events[0]).toEqual({
+        type: 'ADDED',
+        object: mockCustomResource,
+        resourceVersion: '54321',
+      });
+    });
   });
 });
