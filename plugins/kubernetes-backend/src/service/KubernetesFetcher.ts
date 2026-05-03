@@ -378,9 +378,15 @@ export class KubernetesClientBasedFetcher implements KubernetesFetcher {
     } else if (!this.isCredentialMissing(authProvider, credential)) {
       [url, requestInit] = await this.fetchArgs(clusterDetails, credential);
     } else {
-      throw new Error(
-        `no bearer token or client cert for cluster '${clusterDetails.name}' and not running in Kubernetes`,
-      );
+      yield {
+        type: 'ERROR',
+        error: {
+          errorType: 'UNAUTHORIZED_ERROR',
+          statusCode: 401,
+          resourcePath: resourcePath,
+        },
+      };
+      return;
     }
 
     // Construct watch URL
@@ -415,7 +421,15 @@ export class KubernetesClientBasedFetcher implements KubernetesFetcher {
       this.logger.error(
         `Network error watching "${resourcePath}" from cluster "${clusterDetails.name}": ${error}`,
       );
-      throw error;
+      yield {
+        type: 'ERROR',
+        error: {
+          errorType: 'SYSTEM_ERROR',
+          statusCode: 0,
+          resourcePath,
+        },
+      };
+      return;
     }
 
     // Handle HTTP errors
