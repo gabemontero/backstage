@@ -330,3 +330,41 @@ export interface GroupedResponses extends DeploymentResources {
   persistentVolumes: V1PersistentVolume[];
   persistentVolumeClaims: V1PersistentVolumeClaim[];
 }
+
+/**
+ * Kubernetes watch event types
+ * @public
+ */
+export type KubernetesWatchEventType =
+  | 'ADDED'
+  | 'MODIFIED'
+  | 'DELETED'
+  | 'BOOKMARK'
+  | 'ERROR';
+
+/**
+ * Kubernetes watch event
+ * @public
+ */
+export type KubernetesWatchEvent =
+  | {
+      type: 'ADDED' | 'MODIFIED' | 'DELETED' | 'BOOKMARK';
+      object: JsonObject;
+      resourceVersion?: string;
+    }
+  | {
+      type: 'ERROR';
+      error: KubernetesFetchError;
+    };
+
+/**
+ * Options for watching Kubernetes resources
+ * @public
+ */
+export interface KubernetesWatchOptions {
+  namespace?: string;
+  labelSelector?: string;
+  resourceVersion?: string;
+  timeoutSeconds?: number;
+  allowWatchBookmarks?: boolean;
+}
