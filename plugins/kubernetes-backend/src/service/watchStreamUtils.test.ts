@@ -16,6 +16,7 @@
 import { Readable } from 'node:stream';
 import { processWatchStream } from './watchStreamUtils';
 import { mockServices } from '@backstage/backend-test-utils';
+import { KubernetesWatchEvent } from '@backstage/plugin-kubernetes-common';
 
 describe('processWatchStream', () => {
   const logger = mockServices.logger.mock();
@@ -312,10 +313,22 @@ describe('processWatchStream', () => {
 
     expect(events).toHaveLength(3);
     expect(events[0].type).toBe('ADDED');
-    expect(events[0].resourceVersion).toBe('100');
+    const event0 = events[0] as Extract<
+      KubernetesWatchEvent,
+      { type: 'ADDED' | 'MODIFIED' | 'DELETED' | 'BOOKMARK' }
+    >;
+    expect(event0.resourceVersion).toBe('100');
     expect(events[1].type).toBe('MODIFIED');
-    expect(events[1].resourceVersion).toBe('101');
+    const event1 = events[1] as Extract<
+      KubernetesWatchEvent,
+      { type: 'ADDED' | 'MODIFIED' | 'DELETED' | 'BOOKMARK' }
+    >;
+    expect(event1.resourceVersion).toBe('101');
     expect(events[2].type).toBe('DELETED');
-    expect(events[2].resourceVersion).toBe('100');
+    const event2 = events[2] as Extract<
+      KubernetesWatchEvent,
+      { type: 'ADDED' | 'MODIFIED' | 'DELETED' | 'BOOKMARK' }
+    >;
+    expect(event2.resourceVersion).toBe('100');
   });
 });

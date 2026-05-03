@@ -1525,7 +1525,11 @@ describe('KubernetesFetcher', () => {
         { type: 'ERROR' }
       >;
       expect(errorEvent.error.errorType).toBe('UNAUTHORIZED_ERROR');
-      expect(errorEvent.error.statusCode).toBe(401);
+      const statusError = errorEvent.error as Extract<
+        typeof errorEvent.error,
+        { statusCode?: number }
+      >;
+      expect(statusError.statusCode).toBe(401);
     });
 
     it('should yield ERROR event for network failure', async () => {
@@ -1536,8 +1540,8 @@ describe('KubernetesFetcher', () => {
       };
 
       worker.use(
-        rest.get('http://localhost:9997/*', (_req, _res, ctx) => {
-          return ctx.networkError('Network request failed');
+        rest.get('http://localhost:9997/*', () => {
+          throw new Error('Network request failed');
         }),
       );
 
@@ -1560,7 +1564,11 @@ describe('KubernetesFetcher', () => {
         { type: 'ERROR' }
       >;
       expect(errorEvent.error.errorType).toBe('SYSTEM_ERROR');
-      expect(errorEvent.error.statusCode).toBe(0);
+      const statusError = errorEvent.error as Extract<
+        typeof errorEvent.error,
+        { statusCode?: number }
+      >;
+      expect(statusError.statusCode).toBe(0);
     });
 
     it('should pass labelSelector as query parameter', async () => {
