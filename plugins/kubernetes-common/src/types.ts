@@ -362,9 +362,14 @@ export type KubernetesWatchEvent =
  * @public
  */
 export interface KubernetesWatchOptions {
+  /** Namespace to watch resources in. If omitted, watches all namespaces. */
   namespace?: string;
+  /** Label selector to filter resources by labels */
   labelSelector?: string;
+  /** Resource version to start watching from */
   resourceVersion?: string;
+  /** Timeout in seconds for the watch operation */
   timeoutSeconds?: number;
+  /** Whether to enable watch bookmarks for efficient resumption */
   allowWatchBookmarks?: boolean;
 }
