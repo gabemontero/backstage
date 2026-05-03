@@ -1459,7 +1459,7 @@ describe('KubernetesFetcher', () => {
       worker.use(
         rest.get('http://localhost:9999/*', (req, res, ctx) => {
           if (req.url.searchParams.get('watch') === 'true') {
-            return res(ctx.text(watchData));
+            return res(ctx.text(`${watchData}\n`));
           }
           return res(ctx.status(400));
         }),
