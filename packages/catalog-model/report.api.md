@@ -6,6 +6,31 @@
 import { JsonObject } from '@backstage/types';
 
 // @public
+export interface AiModelServerApiEntityV1alpha3 extends Entity {
+  // (undocumented)
+  apiVersion: 'backstage.io/v1alpha3';
+  // (undocumented)
+  kind: 'API';
+  // (undocumented)
+  spec: {
+    type: 'ai-model-server';
+    lifecycle: string;
+    owner: string;
+    system?: string;
+    remotes: AiModelServerRemote[];
+  };
+}
+
+// @public
+export const aiModelServerApiEntityV1alpha3Validator: KindValidator;
+
+// @public
+export type AiModelServerRemote = {
+  type: string;
+  url: string;
+};
+
+// @public
 export const ANNOTATION_EDIT_URL = 'backstage.io/edit-url';
 
 // @public @deprecated
@@ -76,6 +101,31 @@ export interface ApiEntityV1alpha2Default extends Entity {
 
 // @public
 export const apiEntityV1alpha2Validator: KindValidator;
+
+// @public
+export type ApiEntityV1alpha3 =
+  | ApiEntityV1alpha3Default
+  | McpServerApiEntityV1alpha3
+  | AiModelServerApiEntityV1alpha3;
+
+// @public
+export interface ApiEntityV1alpha3Default extends Entity {
+  // (undocumented)
+  apiVersion: 'backstage.io/v1alpha3';
+  // (undocumented)
+  kind: 'API';
+  // (undocumented)
+  spec: {
+    type: string;
+    lifecycle: string;
+    owner: string;
+    system?: string;
+    definition: string;
+  };
+}
+
+// @public
+export const apiEntityV1alpha3Validator: KindValidator;
 
 // @public
 export class CommonValidatorFunctions {
@@ -278,6 +328,11 @@ export { GroupEntityV1alpha1 };
 // @public
 export const groupEntityV1alpha1Validator: KindValidator;
 
+// @public
+export function isAiModelServerApiEntity(
+  entity: ApiEntityV1alpha3,
+): entity is AiModelServerApiEntityV1alpha3;
+
 // @public (undocumented)
 export function isApiEntity(entity: Entity): entity is ApiEntityV1alpha1;
 
@@ -298,9 +353,14 @@ export function isLocationEntity(
 ): entity is LocationEntityV1alpha1;
 
 // @public
-export function isMcpServerApiEntity(
+export function isMcpServerApiEntityV1alpha2(
   entity: ApiEntityV1alpha2,
 ): entity is McpServerApiEntityV1alpha2;
+
+// @public
+export function isMcpServerApiEntityV1alpha3(
+  entity: ApiEntityV1alpha3,
+): entity is McpServerApiEntityV1alpha3;
 
 // @public (undocumented)
 export function isResourceEntity(
@@ -379,6 +439,25 @@ export interface McpServerApiEntityV1alpha2 extends Entity {
 
 // @public
 export const mcpServerApiEntityV1alpha2Validator: KindValidator;
+
+// @public
+export interface McpServerApiEntityV1alpha3 extends Entity {
+  // (undocumented)
+  apiVersion: 'backstage.io/v1alpha3';
+  // (undocumented)
+  kind: 'API';
+  // (undocumented)
+  spec: {
+    type: 'mcp-server';
+    lifecycle: string;
+    owner: string;
+    system?: string;
+    remotes: McpServerRemote[];
+  };
+}
+
+// @public
+export const mcpServerApiEntityV1alpha3Validator: KindValidator;
 
 // @public
 export type McpServerRemote = {
