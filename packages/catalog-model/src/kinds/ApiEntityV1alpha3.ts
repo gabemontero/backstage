@@ -15,10 +15,13 @@
  */
 
 import type { Entity } from '../entity/Entity';
+import type { McpServerRemote } from './ApiEntityV1alpha2';
 import defaultSchema from '../schema/kinds/API.v1alpha3.schema.json';
 import mcpServerSchema from '../schema/kinds/API.v1alpha3.mcp-server.schema.json';
 import aiModelServerSchema from '../schema/kinds/API.v1alpha3.ai-model-server.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
+
+export type { McpServerRemote };
 
 /**
  * Backstage API kind entity, v1alpha3. Introduces AI model server support
@@ -85,16 +88,6 @@ export interface AiModelServerApiEntityV1alpha3 extends Entity {
     remotes: AiModelServerRemote[];
   };
 }
-
-/**
- * A transport endpoint for an MCP server.
- *
- * @public
- */
-export type McpServerRemote = {
-  type: string;
-  url: string;
-};
 
 /**
  * A transport endpoint for an AI model server.

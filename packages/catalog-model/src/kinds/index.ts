@@ -22,6 +22,7 @@ export type {
 export {
   apiEntityV1alpha2Validator,
   mcpServerApiEntityV1alpha2Validator,
+  isMcpServerApiEntity as isMcpServerApiEntityV1alpha2,
 } from './ApiEntityV1alpha2';
 export type {
   ApiEntityV1alpha2,
@@ -31,7 +32,7 @@ export type {
 } from './ApiEntityV1alpha2';
 export {
   apiEntityV1alpha3Validator,
-  isMcpServerApiEntity,
+  isMcpServerApiEntity as isMcpServerApiEntityV1alpha3,
   mcpServerApiEntityV1alpha3Validator,
   aiModelServerApiEntityV1alpha3Validator,
   isAiModelServerApiEntity,
