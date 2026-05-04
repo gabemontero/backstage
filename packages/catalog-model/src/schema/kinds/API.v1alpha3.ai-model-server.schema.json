@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ApiV1alpha3AiModelServer",
+  "description": "An AI model server (LLM or predictive AI) exposed as an API entity. See RFC backstage/backstage#33060.",
+  "examples": [
+    {
+      "apiVersion": "backstage.io/v1alpha3",
+      "kind": "API",
+      "metadata": {
+        "name": "openai-route",
+        "title": "OpenAI Server",
+        "description": "Connection info for OpenAI inference"
+      },
+      "spec": {
+        "type": "ai-model-server",
+        "lifecycle": "experimental",
+        "owner": "ai-platform-team",
+        "remotes": [
+          {
+            "type": "streamable-https",
+            "url": "https://api.openai.com/v1"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "backstage.io/v1alpha3",
+      "kind": "API",
+      "metadata": {
+        "name": "local-ollama-route",
+        "title": "Ollama Server",
+        "description": "Company's Ollama deployment in Kubernetes"
+      },
+      "spec": {
+        "type": "ai-model-server",
+        "lifecycle": "production",
+        "owner": "ml-platform-team",
+        "system": "ai-infrastructure",
+        "remotes": [
+          {
+            "type": "streamable-http",
+            "url": "http://local-ollama.ollama-namespace.svc.cluster.local/v1"
+          }
+        ]
+      }
+    }
+  ],
+  "allOf": [
+    {
+      "$ref": "Entity"
+    },
+    {
+      "type": "object",
+      "required": ["spec"],
+      "properties": {
+        "apiVersion": {
+          "enum": ["backstage.io/v1alpha3"]
+        },
+        "kind": {
+          "enum": ["API"]
+        },
+        "spec": {
+          "type": "object",
+          "required": ["type", "lifecycle", "owner", "remotes"],
+          "properties": {
+            "type": {
+              "const": "ai-model-server",
+              "description": "Discriminant for the AI model server specType."
+            },
+            "lifecycle": {
+              "type": "string",
+              "description": "The lifecycle state of the AI model server.",
+              "examples": ["experimental", "production", "deprecated"],
+              "minLength": 1
+            },
+            "owner": {
+              "type": "string",
+              "description": "An entity reference to the owner of the AI model server.",
+              "examples": ["ai-platform-team", "user:john.johnson"],
+              "minLength": 1
+            },
+            "system": {
+              "type": "string",
+              "description": "An entity reference to the system that the AI model server belongs to.",
+              "minLength": 1
+            },
+            "remotes": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Transport endpoints for the AI model server.",
+              "items": {
+                "type": "object",
+                "required": ["type", "url"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "Transport type, e.g. streamable-http, streamable-https.",
+                    "examples": ["streamable-http", "streamable-https", "grpc"],
+                    "minLength": 1
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "Endpoint URL for the AI model server.",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
