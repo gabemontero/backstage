@@ -21,7 +21,6 @@ export type {
 } from './ApiEntityV1alpha1';
 export {
   apiEntityV1alpha2Validator,
-  isMcpServerApiEntity,
   mcpServerApiEntityV1alpha2Validator,
 } from './ApiEntityV1alpha2';
 export type {
@@ -30,6 +29,20 @@ export type {
   McpServerApiEntityV1alpha2,
   McpServerRemote,
 } from './ApiEntityV1alpha2';
+export {
+  apiEntityV1alpha3Validator,
+  isMcpServerApiEntity,
+  mcpServerApiEntityV1alpha3Validator,
+  aiModelServerApiEntityV1alpha3Validator,
+  isAiModelServerApiEntity,
+} from './ApiEntityV1alpha3';
+export type {
+  ApiEntityV1alpha3,
+  ApiEntityV1alpha3Default,
+  McpServerApiEntityV1alpha3,
+  AiModelServerApiEntityV1alpha3,
+  AiModelServerRemote,
+} from './ApiEntityV1alpha3';
 export { componentEntityV1alpha1Validator } from './ComponentEntityV1alpha1';
 export type {
   ComponentEntityV1alpha1 as ComponentEntity,
