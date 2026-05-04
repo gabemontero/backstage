@@ -65,3 +65,86 @@ describe('apiEntityModel v1alpha2 dispatch', () => {
     expect(required).toContain('definition');
   });
 });
+
+describe('apiEntityModel v1alpha3 dispatch', () => {
+  const model = compileCatalogModel([defaultCatalogEntityModel]);
+  let defaultType: ReturnType<typeof model.getKind>;
+  let mcpServer: ReturnType<typeof model.getKind>;
+  let aiModelServer: ReturnType<typeof model.getKind>;
+
+  beforeEach(() => {
+    defaultType = model.getKind({
+      kind: 'API',
+      apiVersion: 'backstage.io/v1alpha3',
+      spec: { type: 'openapi' },
+    });
+    mcpServer = model.getKind({
+      kind: 'API',
+      apiVersion: 'backstage.io/v1alpha3',
+      spec: { type: 'mcp-server' },
+    });
+    aiModelServer = model.getKind({
+      kind: 'API',
+      apiVersion: 'backstage.io/v1alpha3',
+      spec: { type: 'ai-model-server' },
+    });
+  });
+
+  it('routes v1alpha3 entities to different schemas based on spec.type', () => {
+    expect(defaultType).toBeDefined();
+    expect(mcpServer).toBeDefined();
+    expect(aiModelServer).toBeDefined();
+
+    // Each specType should have a distinct description, indicating proper dispatch
+    expect(mcpServer!.description).not.toBe(defaultType!.description);
+    expect(aiModelServer!.description).not.toBe(defaultType!.description);
+    expect(aiModelServer!.description).not.toBe(mcpServer!.description);
+  });
+
+  it('verifies v1alpha3 schema routing with different required fields', () => {
+    // Default schema requires spec.definition
+    const defaultSpecRequired = (defaultType!.jsonSchema.properties as any).spec
+      .required as string[];
+    expect(defaultSpecRequired).toContain('definition');
+    expect(defaultSpecRequired).not.toContain('remotes');
+
+    // mcp-server schema requires spec.remotes
+    const mcpSpecRequired = (mcpServer!.jsonSchema.properties as any).spec
+      .required as string[];
+    expect(mcpSpecRequired).toContain('remotes');
+    expect(mcpSpecRequired).not.toContain('definition');
+
+    // ai-model-server schema should have its own distinct requirements
+    const aiModelSpecRequired = (aiModelServer!.jsonSchema.properties as any)
+      .spec.required as string[];
+    expect(aiModelSpecRequired).toBeDefined();
+    expect(aiModelSpecRequired).toContain('remotes');
+    expect(aiModelSpecRequired).not.toContain('definition');
+  });
+
+  it('ensures v1alpha1 and v1alpha2 continue working (regression test)', () => {
+    // v1alpha1 should still work
+    const v1alpha1 = model.getKind({
+      kind: 'API',
+      apiVersion: 'backstage.io/v1alpha1',
+      spec: { type: 'openapi' },
+    });
+    expect(v1alpha1).toBeDefined();
+
+    // v1alpha2 default should still work
+    const v1alpha2Default = model.getKind({
+      kind: 'API',
+      apiVersion: 'backstage.io/v1alpha2',
+      spec: { type: 'openapi' },
+    });
+    expect(v1alpha2Default).toBeDefined();
+
+    // v1alpha2 mcp-server should still work
+    const v1alpha2Mcp = model.getKind({
+      kind: 'API',
+      apiVersion: 'backstage.io/v1alpha2',
+      spec: { type: 'mcp-server' },
+    });
+    expect(v1alpha2Mcp).toBeDefined();
+  });
+});
