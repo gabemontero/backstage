@@ -45,12 +45,14 @@ import {
   KubernetesServiceLocator,
 } from '@backstage/plugin-kubernetes-node';
 import { addResourceRoutesToRouter } from '../routes/resourcesRoutes';
+import { addWatchRoutesToRouter } from '../routes/watchRoutes';
 import { ObjectsByEntityRequest } from '../types/types';
 import { KubernetesProxy } from './KubernetesProxy';
 import { requirePermission } from '../auth/requirePermission';
 import { CatalogService } from '@backstage/plugin-catalog-node';
 import { parseEntityRef, stringifyEntityRef } from '@backstage/catalog-model';
 import { resolveProxyMiddlewareCacheOptions } from './ProxyMiddlewareCache';
+import type { KubernetesWatchFanOutHandler } from './KubernetesWatchFanOutHandler';
 
 export interface KubernetesEnvironment {
   logger: LoggerService;
@@ -66,6 +68,7 @@ export interface KubernetesEnvironment {
   clusterSupplier: KubernetesClustersSupplier;
   serviceLocator: KubernetesServiceLocator;
   objectsProvider: KubernetesObjectsProvider;
+  watchFanOut: KubernetesWatchFanOutHandler;
   customRouter?: KubernetesRouterFactory;
 }
 
@@ -327,6 +330,15 @@ export class KubernetesRouter {
       auditor,
       logger,
     );
+
+    addWatchRoutesToRouter(router, {
+      catalog,
+      watchFanOut: this.env.watchFanOut,
+      httpAuth,
+      permissionApi,
+      auditor,
+      logger,
+    });
 
     return router;
   }

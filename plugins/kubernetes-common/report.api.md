@@ -407,6 +407,32 @@ export interface KubernetesWatchOptions {
   timeoutSeconds?: number;
 }
 
+// @public
+export type KubernetesWatchStreamEvent =
+  | {
+      subscription: KubernetesWatchSubscription;
+      type: Exclude<KubernetesWatchEventType, 'ERROR'>;
+      object: JsonObject;
+      resourceVersion?: string;
+    }
+  | {
+      subscription?: KubernetesWatchSubscription;
+      type: 'ERROR';
+      error: KubernetesFetchError;
+    };
+
+// @public
+export interface KubernetesWatchSubscription {
+  apiVersion: string;
+  cluster: string;
+  group: string;
+  id: string;
+  labelSelector?: string;
+  namespace?: string;
+  objectType: string;
+  plural: string;
+}
+
 // @public (undocumented)
 export interface LimitRangeFetchResponse {
   // (undocumented)

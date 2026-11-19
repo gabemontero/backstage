@@ -31,7 +31,7 @@ import {
   statusCodeToErrorType,
 } from './KubernetesConnection';
 
-const CLIENT_SIDE_AUTH_PROVIDERS = new Set(['google', 'oidc', 'aks']);
+export const CLIENT_SIDE_AUTH_PROVIDERS = new Set(['google', 'oidc', 'aks']);
 
 export class KubernetesClientBasedWatcher implements KubernetesWatcher {
   private readonly logger: LoggerService;

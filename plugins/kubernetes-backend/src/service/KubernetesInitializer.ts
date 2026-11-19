@@ -28,7 +28,9 @@ import {
   ObjectToFetch,
 } from '@backstage/plugin-kubernetes-node';
 import { KubernetesClientBasedFetcher } from './KubernetesFetcher';
+import { KubernetesClientBasedWatcher } from './KubernetesWatcher';
 import { KubernetesConnection } from './KubernetesConnection';
+import { KubernetesWatchFanOutHandler } from './KubernetesWatchFanOutHandler';
 import {
   AuthService,
   LoggerService,
@@ -75,6 +77,13 @@ export class KubernetesInitializer {
 
   private async defaultFetcher(connection: KubernetesConnection) {
     return new KubernetesClientBasedFetcher({
+      logger: this.opts.logger,
+      connection,
+    });
+  }
+
+  private defaultWatcher(connection: KubernetesConnection) {
+    return new KubernetesClientBasedWatcher({
       logger: this.opts.logger,
       connection,
     });
@@ -183,6 +192,7 @@ export class KubernetesInitializer {
 
   async init() {
     const connection = this.defaultConnection();
+    const watcher = this.defaultWatcher(connection);
 
     const fetcher =
       (await this.opts.fetcher?.({
@@ -235,12 +245,25 @@ export class KubernetesInitializer {
         objectTypesToFetch,
       }));
 
+    const watchFanOut = new KubernetesWatchFanOutHandler({
+      logger: this.opts.logger,
+      watcher,
+      serviceLocator,
+      authStrategy: new DispatchStrategy({
+        authStrategyMap: Object.fromEntries(authStrategyMap.entries()),
+      }),
+      customResources,
+      objectTypesToFetch,
+    });
+
     return {
       fetcher,
+      watcher,
       authStrategyMap,
       clusterSupplier,
       serviceLocator,
       objectsProvider,
+      watchFanOut,
     };
   }
 }

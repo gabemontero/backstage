@@ -389,3 +389,50 @@ export interface KubernetesWatchOptions {
   /** AbortSignal to cancel the watch from outside the iteration loop */
   signal?: AbortSignal;
 }
+
+/**
+ * Identifies one subscription within a multiplexed Kubernetes watch stream.
+ *
+ * @public
+ */
+export interface KubernetesWatchSubscription {
+  /** Stable identifier for this subscription within the stream */
+  id: string;
+  /** Name of the cluster being watched */
+  cluster: string;
+  /** Backstage object type, for example `pods` or `customresources` */
+  objectType: string;
+  /** API group, or an empty string for the core API group */
+  group: string;
+  /** API version, for example `v1` */
+  apiVersion: string;
+  /** Resource plural name, for example `pods` */
+  plural: string;
+  /** Namespace filter, if the subscription is namespace-scoped */
+  namespace?: string;
+  /** Label selector applied to the subscription */
+  labelSelector?: string;
+}
+
+/**
+ * An event emitted on a multiplexed Kubernetes watch stream.
+ *
+ * Each event carries the subscription it belongs to so that consumers can
+ * reconcile it against the corresponding cluster and resource type. Errors are
+ * delivered as events rather than closing the stream, so a failure in one
+ * subscription does not affect the others.
+ *
+ * @public
+ */
+export type KubernetesWatchStreamEvent =
+  | {
+      subscription: KubernetesWatchSubscription;
+      type: Exclude<KubernetesWatchEventType, 'ERROR'>;
+      object: JsonObject;
+      resourceVersion?: string;
+    }
+  | {
+      subscription?: KubernetesWatchSubscription;
+      type: 'ERROR';
+      error: KubernetesFetchError;
+    };

@@ -264,6 +264,7 @@ export const kubernetesPlugin = createBackendPlugin({
             clusterSupplier,
             serviceLocator,
             objectsProvider,
+            watchFanOut,
           } = await initializer.init();
 
           const router = KubernetesRouter.create({
@@ -280,6 +281,7 @@ export const kubernetesPlugin = createBackendPlugin({
             clusterSupplier,
             serviceLocator,
             objectsProvider,
+            watchFanOut,
             customRouter: extPointRouter.getRouter(),
           });
 
